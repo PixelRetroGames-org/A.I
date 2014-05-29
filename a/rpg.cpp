@@ -479,6 +479,11 @@ void print_level()
            case 5:  {image=SDL_LoadBMP("bricks.bmp");
                      obs[i1][j1]=1;
                      break;}
+           case 6:  {
+                     image=SDL_LoadBMP("city_wall.bmp");
+                     obs[i1][j1]=1;
+                     break;
+                      }
           }
           //SDL_BlitSurface(image,NULL,screen,NULL);
           apply_surface(j+COL_START*40,i,image,screen);}
@@ -529,70 +534,6 @@ void clear_arena_wall()
 	 obs[i][COL_MAX/2]=0;
 	}
 }
-void computer_move_player1(int difficulty)
-{
- switch(difficulty)
-        {
-         case 1:
-                {
-                 if(player1.hp>20)
-                    {
-                     if(player2.lin<player1.lin)
-                        up=1;
-                     if(player2.lin>player1.lin)
-                        down=1;
-                     if(player2.col>player1.col)
-                        right=1;
-                     if(player2.col<player1.col)
-                         left=1;
-                    }
-                 else
-                    {
-                     if(player1.lin<player2.lin)
-                        down=1;
-                     if(player1.lin>player2.lin)
-                        up=1;
-                     if(player1.col>player2.col)
-                        left=1;
-                     if(player1.col<player2.col)
-                        down=1;
-                    }
-                 if(obs[player1.lin][player1.col+1]==2 || obs[player1.lin][player1.col-1]==2)
-                    {
-                     atack1_left=atack1_right=1;
-                    }
-                }
-         case 2:
-                {
-                 if(player1.hp>20)
-                    {
-                     if(player2.lin<player1.lin)
-                        up=1;
-                     if(player2.lin>player1.lin)
-                        down=1;
-                     if(player2.col>player1.col)
-                        right=1;
-                     if(player2.col<player1.col)
-                         left=1;
-                    }
-                 else
-                    {
-                     if(player1.lin<player2.lin)
-                        down=1;
-                     if(player1.lin>player2.lin)
-                        up=1;
-                     if(player1.col>player2.col)
-                        left=1;
-                     if(player1.col<player2.col)
-                        down=1;
-                    }
-                 if(obs[player1.lin][player1.col+1]==2 || obs[player1.lin][player1.col-1]==2)
-                    {
-                     atack1_left=atack1_right=1;
-                    }
-                }
-        }
-}
 int main( int argc, char* args[] )
 {
  player1.hp=HP1;
@@ -610,7 +551,7 @@ int main( int argc, char* args[] )
  apply_surface(0,0,clear,screen);
  if(mute==0)
     Mix_PlayMusic(music, -1 );
- load_level("a");
+ load_level("Lake_village");
  print_level();
  //welcome_message();
  clear=SDL_LoadBMP("clear.bmp");
@@ -674,7 +615,7 @@ int main( int argc, char* args[] )
 	   if(t-t2>=1)
 		 {
             if(player1.skin_state==1)
-			player1.skin=SDL_LoadBMP("warrior1_on_grass.bmp");
+			   player1.skin=SDL_LoadBMP("warrior1_on_grass.bmp");
             else
                player1.skin=SDL_LoadBMP("warrior1_on_grass_left.bmp");
             if(player2.skin_state==1)
@@ -902,7 +843,7 @@ int main( int argc, char* args[] )
                }
            }
         apply_surface((player2.col+COL_START)*40,player2.lin*40,player2.skin,screen);
-        /*up=keystates[SDLK_w];
+        up=keystates[SDLK_w];
         down=keystates[SDLK_s];
         right=keystates[SDLK_d];
         left=keystates[SDLK_a];
@@ -912,8 +853,6 @@ int main( int argc, char* args[] )
         power4=keystates[SDLK_4];
         mana_pot=keystates[SDLK_F2];
         hp_pot=keystates[SDLK_F1];
-        */
-        computer_move_player1(2);
         if(mana_pot==1 && player1.mana<100)
            {
             if(player1.items[5][2]>=1)

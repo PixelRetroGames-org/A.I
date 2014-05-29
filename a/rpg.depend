@@ -1,0 +1,15 @@
+# depslib dependency file v1.0
+1401356253 source:c:\users\elev\a\rpg.cpp
+	"SDL/SDL.h"
+	"SDL/SDL_ttf.h"
+	"SDL/SDL_mixer.h"
+	<string>
+	<cstdio>
+	<ctime>
+	"alex.h"
+
+1401355019 c:\users\elev\a\alex.h
+	<conio.h>
+	<stdlib.h>
+	<windows.h>
+
