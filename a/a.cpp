@@ -591,6 +591,36 @@ void computer_move_player1(int difficulty)
                      atack1_left=atack1_right=1;
                     }
                 }
+         case 3:
+                {
+                 if(player1.hp>20)
+                    {
+                     if(player2.lin<player1.lin)
+                        up=1;
+                     if(player2.lin>player1.lin)
+                        down=1;
+                     if(player2.col>player1.col)
+                        right=1;
+                     if(player2.col<player1.col)
+                         left=1;
+                    }
+                 else
+                    {
+                     if(player1.lin<player2.lin)
+                        down=1;
+                     if(player1.lin>player2.lin)
+                        up=1;
+                     if(player1.col>player2.col)
+                        left=1;
+                     if(player1.col<player2.col)
+                        down=1;
+                    }
+                 if(obs[player1.lin][player1.col+1]==2 || obs[player1.lin][player1.col-1]==2)
+                    {
+                     atack1_left=atack1_right=1;
+                     power2=1;
+                    }
+                }
         }
 }
 int main( int argc, char* args[] )
@@ -913,7 +943,7 @@ int main( int argc, char* args[] )
         mana_pot=keystates[SDLK_F2];
         hp_pot=keystates[SDLK_F1];
         */
-        computer_move_player1(2);
+        computer_move_player1(3);
         if(mana_pot==1 && player1.mana<100)
            {
             if(player1.items[5][2]>=1)
