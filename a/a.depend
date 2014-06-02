@@ -67,7 +67,7 @@
 	<cstdio>
 	<ctime>
 
-1401698119 source:c:\users\elev\a\a.cpp
+1401701355 source:c:\users\elev\a\a.cpp
 	"SDL/SDL.h"
 	"SDL/SDL_ttf.h"
 	"SDL/SDL_mixer.h"

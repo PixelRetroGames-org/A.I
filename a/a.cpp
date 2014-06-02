@@ -23,6 +23,13 @@ void apply_surface( int x, int y, SDL_Surface* source, SDL_Surface* destination 
  offset.y=y;
  SDL_BlitSurface(source,NULL,destination,&offset);
 }
+int modul(int a)
+{
+ if(a<0)
+    return a*(-1);
+ else
+    return a;
+}
 Mix_Chunk *sound;
 Mix_Music *music=NULL;
 SDL_Color textColor={0,900,200}, color1={0,900,0},color2={450,0,0},color3{240,240,70};
@@ -640,6 +647,41 @@ void computer_move_player1(int difficulty)
                  power1=power3=0;
                  break;
                 }
+         case 4:
+                {
+                 if(player1.hp>20)
+                    {
+                     if(player2.lin<player1.lin)
+                        up=1;
+                     if(player2.lin>player1.lin)
+                        down=1;
+                     if(player2.col>player1.col)
+                        right=1;
+                     if(player2.col<player1.col)
+                         left=1;
+                    }
+                 else
+                    {
+                     if(player1.lin<player2.lin)
+                        down=1;
+                     if(player1.lin>player2.lin)
+                        up=1;
+                     if(player1.col>player2.col)
+                        left=1;
+                     if(player1.col<player2.col)
+                        down=1;
+                    }
+                 if(obs[player1.lin][player1.col+1]==2 || obs[player1.lin][player1.col-1]==2)
+                    {
+                     atack1_left=atack1_right=1;
+                    }
+                 if(modul(player2.lin-player1.lin)<=2 && modul(player2.col-player1.col)<=2)
+                    {
+                     power2=1;
+                    }
+                 power1=power3=0;
+                 break;
+                }
         }
 }
 int main( int argc, char* args[] )
@@ -963,7 +1005,7 @@ int main( int argc, char* args[] )
         mana_pot=keystates[SDLK_F2];
         hp_pot=keystates[SDLK_F1];
         */
-        computer_move_player1(3);
+        computer_move_player1(4);
         if(mana_pot==1 && player1.mana<100)
            {
             if(player1.items[5][2]>=1)
