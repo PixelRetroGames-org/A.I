@@ -561,6 +561,15 @@ void computer_move_player1(int difficulty)
                     {
                      atack1_left=atack1_right=1;
                     }
+                 int x=rand()%3;
+                 if(x==0)
+                    atack1_left=atack1_right=0;
+                 int y=rand()%2;
+                 if(y==0)
+                    up=down=left=right=0;
+                 power2=0;
+                 power1=power3=0;
+                 break;
                 }
          case 2:
                 {
@@ -590,6 +599,14 @@ void computer_move_player1(int difficulty)
                     {
                      atack1_left=atack1_right=1;
                     }
+                 int x=rand()%3;
+                 if(x==0)
+                    atack1_left=atack1_right=0;
+                 int y=rand()%2;
+                 if(y==0)
+                    up=down=left=right=0;
+                    power1=power3=0;
+                 break;
                 }
          case 3:
                 {
@@ -620,11 +637,14 @@ void computer_move_player1(int difficulty)
                      atack1_left=atack1_right=1;
                      power2=1;
                     }
+                 power1=power3=0;
+                 break;
                 }
         }
 }
 int main( int argc, char* args[] )
 {
+ srand(time(NULL));
  player1.hp=HP1;
  player2.hp=HP1,player2.mana=HP1,player1.mana=HP1;
  player1.lin=LIN_MAX/2,player1.col=COL_MAX/2-5,player2.lin=LIN_MAX/2,player2.col=COL_MAX/2+5;
