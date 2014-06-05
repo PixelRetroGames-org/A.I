@@ -36,6 +36,7 @@ SDL_Color textColor={0,900,200}, color1={0,900,0},color2={450,0,0},color3{240,24
 TTF_Font *font=NULL;
 SDL_Surface *message=NULL,*clear=NULL,*burn=NULL;
 char pp,mute=0;
+int computer=3,difficulty=1;
 Uint8 *keystates=SDL_GetKeyState(NULL);
 int time_ex,beg1,beg2,end1,end2,t,t1,t2,flag_player;
 int power1,power2,power3,power4;
@@ -373,7 +374,9 @@ class player
   int i=0,i1,j;
   if(a<0)
      a=0;
-  char v[5]={0,0,0,0,0},v1[5]={0,0,0,0,0};
+  char v[100]={0,0,0,0,0,0,0,0,0,0,0,0,0,0},v1[100]={0,0,0,0,0};
+  memset(v,0,100);
+  memset(v1,0,100);
   while(a!=0)
         {
          i++;
@@ -397,7 +400,9 @@ class player
  {
   int i=0,i1,j;
   int a=mana;
-  char v[5]={0,0,0,0,0},v1[5]={0,0,0,0,0};
+  char v[100]={0,0,0,0,0},v1[100]={0,0,0,0,0};
+  memset(v,0,100);
+  memset(v1,0,100);
   while(a!=0)
         {
          i++;
@@ -418,7 +423,7 @@ class player
   apply_surface(col*40,lin*40,message,screen);
  }
 };
-player player1,player2;
+player player[3];
 char file[100];
 int max(int a,int b)
 {
@@ -536,41 +541,62 @@ void clear_arena_wall()
 	 obs[i][COL_MAX/2]=0;
 	}
 }
-void computer_move_player1(int difficulty)
+void player_menu()
 {
+ SDL_Surface *bck=NULL,*image[5][5];
+ image[1][1]=TTF_RenderText_Solid(font,"Player1 vs Computer",color1);
+ image[1][2]=TTF_RenderText_Solid(font,"> Player1 vs Computer",color2);
+ image[2][1]=TTF_RenderText_Solid(font,"Computer vs Player2 ",color1);
+ image[2][2]=TTF_RenderText_Solid(font,"> Computer vs Player2",color2);
+ image[3][1]=TTF_RenderText_Solid(font,"Computer vs Computer",color1);
+ image[3][2]=TTF_RenderText_Solid(font,"> Computer vs Computer",color2);
+}
+void computer_move_player(int difficulty,int pl)
+{
+ int other_player=1;
+ if(pl==1)
+    other_player=2;
  switch(difficulty)
         {
          case 1:
                 {
-                 if(player1.hp>20)
+                 if(player[pl].hp>20)
                     {
-                     if(player2.lin<player1.lin)
+                     if(player[other_player].lin<player[pl].lin)
                         up=1;
-                     if(player2.lin>player1.lin)
+                     if(player[other_player].lin>player[pl].lin)
                         down=1;
-                     if(player2.col>player1.col)
+                     if(player[other_player].col>player[pl].col)
                         right=1;
-                     if(player2.col<player1.col)
+                     if(player[other_player].col<player[pl].col)
                          left=1;
                     }
                  else
                     {
-                     if(player1.lin<player2.lin)
+                     if(player[pl].lin<player[other_player].lin)
                         down=1;
-                     if(player1.lin>player2.lin)
+                     if(player[pl].lin>player[other_player].lin)
                         up=1;
-                     if(player1.col>player2.col)
+                     if(player[pl].col>player[other_player].col)
                         left=1;
-                     if(player1.col<player2.col)
+                     if(player[pl].col<player[other_player].col)
                         down=1;
                     }
-                 if(obs[player1.lin][player1.col+1]==2 || obs[player1.lin][player1.col-1]==2)
+                 if(obs[player[pl].lin][player[pl].col+1]==2 || obs[player[pl].lin][player[pl].col-1]==2)
                     {
-                     atack1_left=atack1_right=1;
+                     if(pl==1)
+                        atack1_left=atack1_right=1;
+                     else
+                        atack_left=atack_right=1;
                     }
                  int x=rand()%3;
                  if(x==0)
-                    atack1_left=atack1_right=0;
+                    {
+                     if(pl==1)
+                        atack1_left=atack1_right=0;
+                     else
+                        atack_left=atack_right=1;
+                    }
                  int y=rand()%2;
                  if(y==0)
                     up=down=left=right=0;
@@ -580,68 +606,75 @@ void computer_move_player1(int difficulty)
                 }
          case 2:
                 {
-                 if(player1.hp>20)
+                 if(player[pl].hp>20)
                     {
-                     if(player2.lin<player1.lin)
+                     if(player[other_player].lin<player[pl].lin)
                         up=1;
-                     if(player2.lin>player1.lin)
+                     if(player[other_player].lin>player[pl].lin)
                         down=1;
-                     if(player2.col>player1.col)
+                     if(player[other_player].col>player[pl].col)
                         right=1;
-                     if(player2.col<player1.col)
+                     if(player[other_player].col<player[pl].col)
                          left=1;
                     }
                  else
                     {
-                     if(player1.lin<player2.lin)
+                     if(player[pl].lin<player[other_player].lin)
                         down=1;
-                     if(player1.lin>player2.lin)
+                     if(player[pl].lin>player[other_player].lin)
                         up=1;
-                     if(player1.col>player2.col)
+                     if(player[pl].col>player[other_player].col)
                         left=1;
-                     if(player1.col<player2.col)
+                     if(player[pl].col<player[other_player].col)
                         down=1;
                     }
-                 if(obs[player1.lin][player1.col+1]==2 || obs[player1.lin][player1.col-1]==2)
+                 if(obs[player[pl].lin][player[pl].col+1]==2 || obs[player[pl].lin][player[pl].col-1]==2)
                     {
-                     atack1_left=atack1_right=1;
+                     if(pl==1)
+                        atack1_left=atack1_right=1;
+                     else
+                        atack_left=atack_right=1;
                     }
                  int x=rand()%3;
                  if(x==0)
-                    atack1_left=atack1_right=0;
-                 int y=rand()%2;
-                 if(y==0)
-                    up=down=left=right=0;
-                    power1=power3=0;
+                    {
+                     if(pl==1)
+                        atack1_left=atack1_right=0;
+                     else
+                        atack_left=atack_right=1;
+                    }
                  break;
                 }
          case 3:
                 {
-                 if(player1.hp>20)
+                 if(player[pl].hp>20)
                     {
-                     if(player2.lin<player1.lin)
+                     if(player[other_player].lin<player[pl].lin)
                         up=1;
-                     if(player2.lin>player1.lin)
+                     if(player[other_player].lin>player[pl].lin)
                         down=1;
-                     if(player2.col>player1.col)
+                     if(player[other_player].col>player[pl].col)
                         right=1;
-                     if(player2.col<player1.col)
+                     if(player[other_player].col<player[pl].col)
                          left=1;
                     }
                  else
                     {
-                     if(player1.lin<player2.lin)
+                     if(player[pl].lin<player[other_player].lin)
                         down=1;
-                     if(player1.lin>player2.lin)
+                     if(player[pl].lin>player[other_player].lin)
                         up=1;
-                     if(player1.col>player2.col)
+                     if(player[pl].col>player[other_player].col)
                         left=1;
-                     if(player1.col<player2.col)
+                     if(player[pl].col<player[other_player].col)
                         down=1;
                     }
-                 if(obs[player1.lin][player1.col+1]==2 || obs[player1.lin][player1.col-1]==2)
+                 if(obs[player[pl].lin][player[pl].col+1]==2 || obs[player[pl].lin][player[pl].col-1]==2)
                     {
-                     atack1_left=atack1_right=1;
+                     if(pl==1)
+                        atack1_left=atack1_right=1;
+                     else
+                        atack_left=atack_right=1;
                      power2=1;
                     }
                  power1=power3=0;
@@ -649,33 +682,36 @@ void computer_move_player1(int difficulty)
                 }
          case 4:
                 {
-                 if(player1.hp>20)
+                 if(player[pl].hp>20)
                     {
-                     if(player2.lin<player1.lin)
+                     if(player[other_player].lin<player[pl].lin)
                         up=1;
-                     if(player2.lin>player1.lin)
+                     if(player[other_player].lin>player[pl].lin)
                         down=1;
-                     if(player2.col>player1.col)
+                     if(player[other_player].col>player[pl].col)
                         right=1;
-                     if(player2.col<player1.col)
+                     if(player[other_player].col<player[pl].col)
                          left=1;
                     }
                  else
                     {
-                     if(player1.lin<player2.lin)
+                     if(player[pl].lin<player[other_player].lin)
                         down=1;
-                     if(player1.lin>player2.lin)
+                     if(player[pl].lin>player[other_player].lin)
                         up=1;
-                     if(player1.col>player2.col)
+                     if(player[pl].col>player[other_player].col)
                         left=1;
-                     if(player1.col<player2.col)
+                     if(player[pl].col<player[other_player].col)
                         down=1;
                     }
-                 if(obs[player1.lin][player1.col+1]==2 || obs[player1.lin][player1.col-1]==2)
+                 if(obs[player[pl].lin][player[pl].col+1]==2 || obs[player[pl].lin][player[pl].col-1]==2)
                     {
-                     atack1_left=atack1_right=1;
+                     if(pl==1)
+                        atack1_left=atack1_right=1;
+                     else
+                        atack_left=atack_right=1;
                     }
-                 if(modul(player2.lin-player1.lin)<=2 && modul(player2.col-player1.col)<=2)
+                 if(modul(player[other_player].lin-player[pl].lin)<=2 && modul(player[other_player].col-player[pl].col)<=2)
                     {
                      power2=1;
                     }
@@ -687,10 +723,10 @@ void computer_move_player1(int difficulty)
 int main( int argc, char* args[] )
 {
  srand(time(NULL));
- player1.hp=HP1;
- player2.hp=HP1,player2.mana=HP1,player1.mana=HP1;
- player1.lin=LIN_MAX/2,player1.col=COL_MAX/2-5,player2.lin=LIN_MAX/2,player2.col=COL_MAX/2+5;
- player1.money,player2.money,player2.xp,player1.xp;
+ player[1].hp=HP1;
+ player[2].hp=HP1,player[2].mana=HP1,player[1].mana=HP1;
+ player[1].lin=LIN_MAX/2,player[1].col=COL_MAX/2-5,player[2].lin=LIN_MAX/2,player[2].col=COL_MAX/2+5;
+ player[1].money,player[2].money,player[2].xp,player[1].xp;
  SDL_Init(SDL_INIT_EVERYTHING);
  Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 1, 4096 );
  //screen=SDL_SetVideoMode((LIN_MAX+1)*40,(COL_MAX+1)*40,32,SDL_FULLSCREEN/*SDL_SWSURFACE*/);
@@ -717,28 +753,28 @@ int main( int argc, char* args[] )
  apply_surface((0)*40,0,background,screen);
  apply_surface((0)*40+5,0,message,screen);
  SDL_Flip(screen);
- player1.skin=SDL_LoadBMP("warrior1_on_grass.bmp");
- player2.skin=SDL_LoadBMP("warrior_on_grass.bmp");
- obs[player2.lin][player2.col]=2;
- obs[player1.lin][player1.col]=3;
- player2.print_hp(1,COL_MAX+COL_START+2);
- player1.print_hp(1,0);
- player2.print_mana(2,COL_MAX+COL_START+2);
- player1.print_mana(2,0);
+ player[1].skin=SDL_LoadBMP("warrior1_on_grass.bmp");
+ player[2].skin=SDL_LoadBMP("warrior_on_grass.bmp");
+ obs[player[2].lin][player[2].col]=2;
+ obs[player[1].lin][player[1].col]=3;
+ player[2].print_hp(1,COL_MAX+COL_START+2);
+ player[1].print_hp(1,0);
+ player[2].print_mana(2,COL_MAX+COL_START+2);
+ player[1].print_mana(2,0);
  time_ex=0;
  if(mute<=1)
     sound=Mix_LoadWAV("hit.wav");
  print_level();
  int start_t=0;
  put_arena_wall();
- player1.load_save("player1",0);
- player2.load_save("player2",27*40);
- player1.skin_state=1;
- player2.skin_state=0;
- while(keystates[SDLK_ESCAPE]==NULL && player1.hp>0 && player2.hp>0)
+ player[1].load_save("player1",0);
+ player[2].load_save("player2",27*40);
+ player[1].skin_state=1;
+ player[2].skin_state=0;
+ while(keystates[SDLK_ESCAPE]==NULL && player[1].hp>0 && player[2].hp>0)
        {
-        obs[player1.lin][player1.col]=3;
-        obs[player2.lin][player2.col]=2;
+        obs[player[1].lin][player[1].col]=3;
+        obs[player[2].lin][player[2].col]=2;
 	   flag_player=0;
 	   t=time(NULL);
         if(t-t1>=2)
@@ -749,59 +785,67 @@ int main( int argc, char* args[] )
 			 clear_arena_wall();
                }
             t1=t;
-            if(player2.mana<=99)
+            if(player[2].mana<=99)
 			{
-			 player2.mana++;
-			 player2.print_mana(2,COL_MAX+COL_START+2);
+			 player[2].mana++;
+			 player[2].print_mana(2,COL_MAX+COL_START+2);
 			}
-		  if(player1.mana<=99)
+		  if(player[1].mana<=99)
 			{
-			 player1.mana++;
-			 player1.print_mana(2,0);
+			 player[1].mana++;
+			 player[1].print_mana(2,0);
 			}
             //load_level("a");
             print_level();
-            player2.permission=player1.permission=0;
+            player[2].permission=player[1].permission=0;
            }
 	   if(t-t2>=1)
 		 {
-            if(player1.skin_state==1)
-			player1.skin=SDL_LoadBMP("warrior1_on_grass.bmp");
+            if(player[1].skin_state==1)
+			player[1].skin=SDL_LoadBMP("warrior1_on_grass.bmp");
             else
-               player1.skin=SDL_LoadBMP("warrior1_on_grass_left.bmp");
-            if(player2.skin_state==1)
-               player2.skin=SDL_LoadBMP("warrior_on_grass.bmp");
+               player[1].skin=SDL_LoadBMP("warrior1_on_grass_left.bmp");
+            if(player[2].skin_state==1)
+               player[2].skin=SDL_LoadBMP("warrior_on_grass.bmp");
 		  else
-              player2.skin=SDL_LoadBMP("warrior_on_grass_left.bmp");
+              player[2].skin=SDL_LoadBMP("warrior_on_grass_left.bmp");
             t2=t;
-		  player2.permission_basic=player1.permission_basic=0;
+		  player[2].permission_basic=player[1].permission_basic=0;
 		 }
-        up=keystates[SDLK_UP];
-        down=keystates[SDLK_DOWN];
-        right=keystates[SDLK_RIGHT];
-        left=keystates[SDLK_LEFT];
-        atack_left=keystates[SDLK_RCTRL];
-        atack_right=keystates[SDLK_RCTRL];
-        power1=keystates[SDLK_u];
-        power2=keystates[SDLK_i];
-        power3=keystates[SDLK_o];
-        power4=keystates[SDLK_p];
-        atack1_left=keystates[SDLK_z];
-        atack1_right=keystates[SDLK_z];
-        mana_pot=keystates[SDLK_0];
-        hp_pot=keystates[SDLK_9];
-	   if(mana_pot==1 && player2.mana<100)
+	   if(computer==2)
+	      {
+	       atack1_left=keystates[SDLK_z];
+            atack1_right=keystates[SDLK_z];
+	      }
+	   if(computer==1)
            {
-            if(player2.items[5][2]>=1)
+            up=keystates[SDLK_UP];
+            down=keystates[SDLK_DOWN];
+            right=keystates[SDLK_RIGHT];
+            left=keystates[SDLK_LEFT];
+            atack_left=keystates[SDLK_RCTRL];
+            atack_right=keystates[SDLK_RCTRL];
+            power1=keystates[SDLK_u];
+            power2=keystates[SDLK_i];
+            power3=keystates[SDLK_o];
+            power4=keystates[SDLK_p];
+            mana_pot=keystates[SDLK_0];
+            hp_pot=keystates[SDLK_9];
+           }
+        else
+           computer_move_player(difficulty,2);
+	   if(mana_pot==1 && player[2].mana<100)
+           {
+            if(player[2].items[5][2]>=1)
                {
-                player2.items[5][2]--;
-                player2.mana+=10;
-                if(player2.mana>100)
-                   player2.mana=100;
-                player2.print_mana(2,27);
+                player[2].items[5][2]--;
+                player[2].mana+=10;
+                if(player[2].mana>100)
+                   player[2].mana=100;
+                player[2].print_mana(2,27);
                 clear=SDL_LoadBMP("inventory_clear.bmp");
                 apply_surface(80+27*40,120,clear,screen);
-                int a=player2.items[5][2];
+                int a=player[2].items[5][2];
 			 int i=0,i1,j;
 			 if(a<0)
 			    a=0;
@@ -827,18 +871,18 @@ int main( int argc, char* args[] )
 		      apply_surface(100+27*40,120,image,screen);
                }
            }
-        if(hp_pot==1 && player2.hp<100)
+        if(hp_pot==1 && player[2].hp<100)
            {
-            if(player2.items[5][1]>=1)
+            if(player[2].items[5][1]>=1)
                {
-                player2.items[5][1]--;
-                player2.hp+=10;
-                if(player2.hp>100)
-                   player2.hp=100;
-                player2.print_hp(1,27);
+                player[2].items[5][1]--;
+                player[2].hp+=10;
+                if(player[2].hp>100)
+                   player[2].hp=100;
+                player[2].print_hp(1,27);
                 clear=SDL_LoadBMP("inventory_clear.bmp");
                 apply_surface(20+27*40,120,clear,screen);
-                int a=player2.items[5][1];
+                int a=player[2].items[5][1];
 			 int i=0,i1,j;
 			 if(a<0)
 			    a=0;
@@ -864,38 +908,38 @@ int main( int argc, char* args[] )
 		      apply_surface(27*40,120,image,screen);
                }
            }
-        if(power1==1 && player2.mana>=10 && player2.hp<=90)
+        if(power1==1 && player[2].mana>=10 && player[2].hp<=90)
            {
-            player2.mana-=10;
-            player2.hp+=10;
-            player2.print_mana(2,COL_MAX+COL_START+2);
-            player2.print_hp(1,COL_MAX+COL_START+2);
+            player[2].mana-=10;
+            player[2].hp+=10;
+            player[2].print_mana(2,COL_MAX+COL_START+2);
+            player[2].print_hp(1,COL_MAX+COL_START+2);
            }
-        if(power2==1 && player2.mana>=30 && player2.permission==0)
+        if(power2==1 && player[2].mana>=30 && player[2].permission==0)
            {
-            player2.mana-=30;
-            player2.permission=1;
-            if(max(player1.lin,player2.lin)-min(player1.lin,player2.lin)<=2 && max(player1.col,player2.col)-min(player1.col,player2.col)<=2)
+            player[2].mana-=30;
+            player[2].permission=1;
+            if(max(player[1].lin,player[2].lin)-min(player[1].lin,player[2].lin)<=2 && max(player[1].col,player[2].col)-min(player[1].col,player[2].col)<=2)
                {
-                player1.hp-=40+player2.fire_dmg*3/10-player1.fire_res*3/10;
-                player1.print_hp(1,0);
+                player[1].hp-=40+player[2].fire_dmg*3/10-player[1].fire_res*3/10;
+                player[1].print_hp(1,0);
                }
-            if(player2.lin-2<=0)
+            if(player[2].lin-2<=0)
                beg1=1;
             else
-               beg1=player2.lin-2;
-            if(player2.lin+2>=LIN_MAX)
+               beg1=player[2].lin-2;
+            if(player[2].lin+2>=LIN_MAX)
                end1=LIN_MAX;
             else
-               end1=player2.lin+2;
-            if(player2.col-2<=0)
+               end1=player[2].lin+2;
+            if(player[2].col-2<=0)
                beg2=1;
             else
-               beg2=player2.col-2;
-            if(player2.col+2>=COL_MAX)
+               beg2=player[2].col-2;
+            if(player[2].col+2>=COL_MAX)
                end2=COL_MAX;
             else
-               end2=player2.col+2;
+               end2=player[2].col+2;
             for(int i=beg1;i<=end1;i++)
                 for(int j=beg2;j<=end2;j++)
                     {
@@ -906,118 +950,121 @@ int main( int argc, char* args[] )
                          apply_surface((j+COL_START)*40,i*40,burn,screen);
                         }
                     }
-            player2.print_mana(2,COL_MAX+COL_START+2);
+            player[2].print_mana(2,COL_MAX+COL_START+2);
            }
-        if(power3==1 && player2.hp>10)
+        if(power3==1 && player[2].hp>10)
            {
-            player2.hp-=10;
-            player2.mana+=10;
-            player2.print_mana(2,COL_MAX+COL_START+2);
-            player2.print_hp(1,COL_MAX+COL_START+2);
+            player[2].hp-=10;
+            player[2].mana+=10;
+            player[2].print_mana(2,COL_MAX+COL_START+2);
+            player[2].print_hp(1,COL_MAX+COL_START+2);
            }
-        if(atack_left==1 && player2.permission_basic==0)
+        if(atack_left==1 && player[2].permission_basic==0)
            {
-            player2.skin=SDL_LoadBMP("warrior_on_grass_left.bmp");
-            player2.skin_state=0;
-            if(obs[player2.lin][player2.col-1]==3)
+            player[2].skin=SDL_LoadBMP("warrior_on_grass_left.bmp");
+            player[2].skin_state=0;
+            if(obs[player[2].lin][player[2].col-1]==3)
                {
-			 player2.permission_basic=1;
-			 player1.hp-=10+player2.attack/10-player1.block/10;
-			 player1.skin=SDL_LoadBMP("hit_warrior1_on_grass.bmp");
-			 player1.skin_state=1;
-			 apply_surface((player1.col+COL_START)*40,player1.lin*40,player1.skin,screen);
-                player1.print_hp(1,0);
+			 player[2].permission_basic=1;
+			 player[1].hp-=10+player[2].attack/10-player[1].block/10;
+			 player[1].skin=SDL_LoadBMP("hit_warrior1_on_grass.bmp");
+			 player[1].skin_state=1;
+			 apply_surface((player[1].col+COL_START)*40,player[1].lin*40,player[1].skin,screen);
+                player[1].print_hp(1,0);
                 Mix_PlayChannel(-1, sound, 0);
                }
            }
-        if(atack_right==1 && player2.permission_basic==0)
+        if(atack_right==1 && player[2].permission_basic==0)
            {
-            player2.skin=SDL_LoadBMP("warrior_on_grass.bmp");
-            player2.skin_state=1;
-            if(obs[player2.lin][player2.col+1]==3)
+            player[2].skin=SDL_LoadBMP("warrior_on_grass.bmp");
+            player[2].skin_state=1;
+            if(obs[player[2].lin][player[2].col+1]==3)
                {
-			 player2.permission_basic=1;
-			 player1.hp-=10+player2.attack/10-player1.block/10;
-			 player1.skin=SDL_LoadBMP("hit_warrior1_on_grass_left.bmp");
-			 player1.skin_state=0;
-			 apply_surface((player1.col+COL_START)*40,player1.lin*40,player1.skin,screen);
-                player1.print_hp(1,0);
+			 player[2].permission_basic=1;
+			 player[1].hp-=10+player[2].attack/10-player[1].block/10;
+			 player[1].skin=SDL_LoadBMP("hit_warrior1_on_grass_left.bmp");
+			 player[1].skin_state=0;
+			 apply_surface((player[1].col+COL_START)*40,player[1].lin*40,player[1].skin,screen);
+                player[1].print_hp(1,0);
                 Mix_PlayChannel(-1, sound, 0);
                }
            }
-        if(up==1 && player2.lin>1)
+        if(up==1 && player[2].lin>1)
            {
             time_ex++;
-            if(obs[player2.lin-1][player2.col]==0)
+            if(obs[player[2].lin-1][player[2].col]==0)
                {
-                obs[player2.lin][player2.col]=0;
-			 put_back(player2.lin,player2.col);
-                player2.lin--;
-                obs[player2.lin][player2.col]=2;
+                obs[player[2].lin][player[2].col]=0;
+			 put_back(player[2].lin,player[2].col);
+                player[2].lin--;
+                obs[player[2].lin][player[2].col]=2;
                }
            }
-        if(down==1 && player2.lin<COL_MAX)
+        if(down==1 && player[2].lin<COL_MAX)
            {
 		  time_ex++;
-            if(obs[player2.lin+1][player2.col]==0)
+            if(obs[player[2].lin+1][player[2].col]==0)
                {
-                obs[player2.lin][player2.col]=0;
-			 put_back(player2.lin,player2.col);
-                player2.lin++;
-                obs[player2.lin][player2.col]=2;
+                obs[player[2].lin][player[2].col]=0;
+			 put_back(player[2].lin,player[2].col);
+                player[2].lin++;
+                obs[player[2].lin][player[2].col]=2;
                }
            }
-        if(left==1 && player2.col>1)
+        if(left==1 && player[2].col>1)
            {
 		  time_ex++;
-            if(obs[player2.lin][player2.col-1]==0)
+            if(obs[player[2].lin][player[2].col-1]==0)
                {
-                obs[player2.lin][player2.col]=0;
-			 put_back(player2.lin,player2.col);
-                player2.col--;
-                obs[player2.lin][player2.col]=2;
-                player2.skin=SDL_LoadBMP("warrior_on_grass_left.bmp");
-                player2.skin_state=0;
+                obs[player[2].lin][player[2].col]=0;
+			 put_back(player[2].lin,player[2].col);
+                player[2].col--;
+                obs[player[2].lin][player[2].col]=2;
+                player[2].skin=SDL_LoadBMP("warrior_on_grass_left.bmp");
+                player[2].skin_state=0;
                }
            }
-        if(right==1 && player2.col<LIN_MAX)
+        if(right==1 && player[2].col<LIN_MAX)
            {
             time_ex++;
-            if(obs[player2.lin][player2.col+1]==0)
+            if(obs[player[2].lin][player[2].col+1]==0)
                {
-                obs[player2.lin][player2.col]=0;
-			 put_back(player2.lin,player2.col);
-                player2.col++;
-                obs[player2.lin][player2.col]=2;
-                player2.skin=SDL_LoadBMP("warrior_on_grass.bmp");
-                player2.skin_state=1;
+                obs[player[2].lin][player[2].col]=0;
+			 put_back(player[2].lin,player[2].col);
+                player[2].col++;
+                obs[player[2].lin][player[2].col]=2;
+                player[2].skin=SDL_LoadBMP("warrior_on_grass.bmp");
+                player[2].skin_state=1;
                }
            }
-        apply_surface((player2.col+COL_START)*40,player2.lin*40,player2.skin,screen);
-        /*up=keystates[SDLK_w];
-        down=keystates[SDLK_s];
-        right=keystates[SDLK_d];
-        left=keystates[SDLK_a];
-        power1=keystates[SDLK_1];
-        power2=keystates[SDLK_2];
-        power3=keystates[SDLK_3];
-        power4=keystates[SDLK_4];
-        mana_pot=keystates[SDLK_F2];
-        hp_pot=keystates[SDLK_F1];
-        */
-        computer_move_player1(4);
-        if(mana_pot==1 && player1.mana<100)
+        apply_surface((player[2].col+COL_START)*40,player[2].lin*40,player[2].skin,screen);
+        if(computer==2)
            {
-            if(player1.items[5][2]>=1)
+            up=keystates[SDLK_w];
+            down=keystates[SDLK_s];
+            right=keystates[SDLK_d];
+            left=keystates[SDLK_a];
+            power1=keystates[SDLK_1];
+            power2=keystates[SDLK_2];
+            power3=keystates[SDLK_3];
+            power4=keystates[SDLK_4];
+            mana_pot=keystates[SDLK_F2];
+            hp_pot=keystates[SDLK_F1];
+           }
+        else
+           computer_move_player(difficulty,1);
+        if(mana_pot==1 && player[1].mana<100)
+           {
+            if(player[1].items[5][2]>=1)
                {
-                player1.items[5][2]--;
-                player1.mana+=10;
-                if(player1.mana>100)
-                   player1.mana=100;
-                player1.print_mana(2,0);
+                player[1].items[5][2]--;
+                player[1].mana+=10;
+                if(player[1].mana>100)
+                   player[1].mana=100;
+                player[1].print_mana(2,0);
                 clear=SDL_LoadBMP("inventory_clear.bmp");
                 apply_surface(80,120,clear,screen);
-                int a=player1.items[5][2];
+                int a=player[1].items[5][2];
 			 int i=0,i1,j;
 			 if(a<0)
 			    a=0;
@@ -1043,18 +1090,18 @@ int main( int argc, char* args[] )
 		      apply_surface(100,120,image,screen);
                }
            }
-        if(hp_pot==1 && player1.hp<100)
+        if(hp_pot==1 && player[1].hp<100)
            {
-            if(player1.items[5][1]>=1)
+            if(player[1].items[5][1]>=1)
                {
-                player1.items[5][1]--;
-                player1.hp+=10;
-                if(player1.hp>100)
-                   player1.hp=100;
-                player1.print_hp(1,0);
+                player[1].items[5][1]--;
+                player[1].hp+=10;
+                if(player[1].hp>100)
+                   player[1].hp=100;
+                player[1].print_hp(1,0);
                 clear=SDL_LoadBMP("inventory_clear.bmp");
                 apply_surface(20,120,clear,screen);
-                int a=player1.items[5][1];
+                int a=player[1].items[5][1];
 			 int i=0,i1,j;
 			 if(a<0)
 			    a=0;
@@ -1080,38 +1127,38 @@ int main( int argc, char* args[] )
 		      apply_surface(20,120,image,screen);
                }
            }
-        if(power1==1 && player1.mana>=10 && player1.hp<=90)
+        if(power1==1 && player[1].mana>=10 && player[1].hp<=90)
            {
-            player1.mana-=10;
-            player1.hp+=10;
-            player1.print_mana(2,0);
-            player1.print_hp(1,0);
+            player[1].mana-=10;
+            player[1].hp+=10;
+            player[1].print_mana(2,0);
+            player[1].print_hp(1,0);
            }
-        if(power2==1 && player1.mana>=30 && player1.permission==0)
+        if(power2==1 && player[1].mana>=30 && player[1].permission==0)
            {
-            player1.mana-=30;
-            player1.permission=1;
-            if(max(player2.lin,player1.lin)-min(player1.lin,player2.lin)<=2 && max(player1.col,player2.col)-min(player1.col,player2.col)<=2)
+            player[1].mana-=30;
+            player[1].permission=1;
+            if(max(player[2].lin,player[1].lin)-min(player[1].lin,player[2].lin)<=2 && max(player[1].col,player[2].col)-min(player[1].col,player[2].col)<=2)
                {
-                player2.hp-=40+player1.fire_dmg*3/10-player2.fire_res*3/10;
-                player2.print_hp(1,COL_MAX+COL_START+2);
+                player[2].hp-=40+player[1].fire_dmg*3/10-player[2].fire_res*3/10;
+                player[2].print_hp(1,COL_MAX+COL_START+2);
                }
-            if(player1.lin-2<=0)
+            if(player[1].lin-2<=0)
                beg1=1;
             else
-               beg1=player1.lin-2;
-            if(player1.lin+2>=LIN_MAX)
+               beg1=player[1].lin-2;
+            if(player[1].lin+2>=LIN_MAX)
                end1=LIN_MAX;
             else
-               end1=player1.lin+2;
-            if(player1.col-2<=0)
+               end1=player[1].lin+2;
+            if(player[1].col-2<=0)
                beg2=1;
             else
-               beg2=player1.col-2;
-            if(player1.col+2>=COL_MAX)
+               beg2=player[1].col-2;
+            if(player[1].col+2>=COL_MAX)
                end2=COL_MAX;
             else
-               end2=player1.col+2;
+               end2=player[1].col+2;
             for(int i=beg1;i<=end1;i++)
                 for(int j=beg2;j<=end2;j++)
                     {
@@ -1122,153 +1169,153 @@ int main( int argc, char* args[] )
                          apply_surface((j+COL_START)*40,i*40,burn,screen);
                         }
                     }
-            player1.print_mana(2,0);
+            player[1].print_mana(2,0);
            }
-        if(power3==1 && player1.hp>10)
+        if(power3==1 && player[1].hp>10)
            {
-            player1.hp-=10;
-            player1.mana+=10;
-            player1.print_mana(2,0);
-            player1.print_hp(1,0);
+            player[1].hp-=10;
+            player[1].mana+=10;
+            player[1].print_mana(2,0);
+            player[1].print_hp(1,0);
            }
-        if(atack1_left==1 && player1.permission_basic==0 && flag_player==0)
+        if(atack1_left==1 && player[1].permission_basic==0 && flag_player==0)
            {
-            if(obs[player1.lin][player1.col-1]==2)
+            if(obs[player[1].lin][player[1].col-1]==2)
                {
-			 player1.permission_basic=1;
-                player1.skin=SDL_LoadBMP("warrior1_on_grass_left.bmp");
-                player1.skin_state=0;
-			 player2.hp-=10+player1.attack/10-player2.block/10;
+			 player[1].permission_basic=1;
+                player[1].skin=SDL_LoadBMP("warrior1_on_grass_left.bmp");
+                player[1].skin_state=0;
+			 player[2].hp-=10+player[1].attack/10-player[2].block/10;
                 //SDL_FreeSurface(player);
-                player2.print_hp(1,COL_MAX+COL_START+2);
-                player2.skin=SDL_LoadBMP("hit_warrior_on_grass.bmp");
-                player2.skin_state=1;
-                apply_surface((player2.col+COL_START)*40,player2.lin*40,player2.skin,screen);
+                player[2].print_hp(1,COL_MAX+COL_START+2);
+                player[2].skin=SDL_LoadBMP("hit_warrior_on_grass.bmp");
+                player[2].skin_state=1;
+                apply_surface((player[2].col+COL_START)*40,player[2].lin*40,player[2].skin,screen);
                 SDL_Flip(screen);
                 Mix_PlayChannel(-1, sound, 0);
                }
            }
-        if(atack1_right==1 && player1.permission_basic==0 && flag_player==0)
+        if(atack1_right==1 && player[1].permission_basic==0 && flag_player==0)
            {
-            if(obs[player1.lin][player1.col+1]==2)
+            if(obs[player[1].lin][player[1].col+1]==2)
                {
-			    player1.permission_basic=1;
-                player1.skin=SDL_LoadBMP("warrior1_on_grass.bmp");
-                player1.skin_state=1;
-			    player2.hp-=10+player1.attack/10-player2.block/10;
-                player2.print_hp(1,COL_MAX+COL_START+2);
+			    player[1].permission_basic=1;
+                player[1].skin=SDL_LoadBMP("warrior1_on_grass.bmp");
+                player[1].skin_state=1;
+			    player[2].hp-=10+player[1].attack/10-player[2].block/10;
+                player[2].print_hp(1,COL_MAX+COL_START+2);
                 //SDL_FreeSurface(player);
-                player2.skin=SDL_LoadBMP("hit_warrior_on_grass_left.bmp");
-                player2.skin_state=0;
-                apply_surface((player2.col+COL_START)*40,player2.lin*40,player2.skin,screen);
+                player[2].skin=SDL_LoadBMP("hit_warrior_on_grass_left.bmp");
+                player[2].skin_state=0;
+                apply_surface((player[2].col+COL_START)*40,player[2].lin*40,player[2].skin,screen);
                 SDL_Flip(screen);
                 Mix_PlayChannel(-1, sound, 0);
                }
            }
-        if(up==1 && player1.lin>1)
+        if(up==1 && player[1].lin>1)
            {
             time_ex++;
-            if(obs[player1.lin-1][player1.col]==0)
+            if(obs[player[1].lin-1][player[1].col]==0)
                {
-                obs[player1.lin][player1.col]=0;
-			 put_back(player1.lin,player1.col);
-                player1.lin--;
-                obs[player1.lin][player1.col]=3;
+                obs[player[1].lin][player[1].col]=0;
+			 put_back(player[1].lin,player[1].col);
+                player[1].lin--;
+                obs[player[1].lin][player[1].col]=3;
                }
            }
-        if(down==1 && player1.lin<COL_MAX)
+        if(down==1 && player[1].lin<COL_MAX)
            {
 		  time_ex++;
-            if(obs[player1.lin+1][player1.col]==0)
+            if(obs[player[1].lin+1][player[1].col]==0)
                {
-                obs[player1.lin][player1.col]=0;
-			 put_back(player1.lin,player1.col);
-                player1.lin++;
-                obs[player1.lin][player1.col]=3;
+                obs[player[1].lin][player[1].col]=0;
+			 put_back(player[1].lin,player[1].col);
+                player[1].lin++;
+                obs[player[1].lin][player[1].col]=3;
                }
            }
-        if(left==1 && player1.col>1)
+        if(left==1 && player[1].col>1)
            {
             time_ex++;
-            if(obs[player1.lin][player1.col-1]==0)
+            if(obs[player[1].lin][player[1].col-1]==0)
 			{
-			 obs[player1.lin][player1.col]=0;
-			 put_back(player1.lin,player1.col);
-                player1.col--;
-                obs[player1.lin][player1.col]=3;
-                player1.skin=SDL_LoadBMP("warrior1_on_grass_left.bmp");
-                player1.skin_state=0;
+			 obs[player[1].lin][player[1].col]=0;
+			 put_back(player[1].lin,player[1].col);
+                player[1].col--;
+                obs[player[1].lin][player[1].col]=3;
+                player[1].skin=SDL_LoadBMP("warrior1_on_grass_left.bmp");
+                player[1].skin_state=0;
                }
            }
-        if(right==1 && player1.col<LIN_MAX)
+        if(right==1 && player[1].col<LIN_MAX)
            {
             time_ex++;
-            if(obs[player1.lin][player1.col+1]==0)
+            if(obs[player[1].lin][player[1].col+1]==0)
                {
-                obs[player1.lin][player1.col]=0;
-			 put_back(player1.lin,player1.col);
-                player1.col++;
-                obs[player1.lin][player1.col]=3;
-                player1.skin=SDL_LoadBMP("warrior1_on_grass.bmp");
-                player1.skin_state=1;
+                obs[player[1].lin][player[1].col]=0;
+			 put_back(player[1].lin,player[1].col);
+                player[1].col++;
+                obs[player[1].lin][player[1].col]=3;
+                player[1].skin=SDL_LoadBMP("warrior1_on_grass.bmp");
+                player[1].skin_state=1;
                 }
            }
         SDL_Delay(50);
-        apply_surface((player1.col+COL_START)*40,player1.lin*40,player1.skin,screen);
+        apply_surface((player[1].col+COL_START)*40,player[1].lin*40,player[1].skin,screen);
         SDL_Flip(screen);
         SDL_PumpEvents();
        }
- if(player2.hp>player1.hp)
+ if(player[2].hp>player[1].hp)
     {
-     player1.skin=SDL_LoadBMP("dead_warrior1_on_grass.bmp");
-     apply_surface((player1.col+COL_START)*40,player1.lin*40,player1.skin,screen);
+     player[1].skin=SDL_LoadBMP("dead_warrior1_on_grass.bmp");
+     apply_surface((player[1].col+COL_START)*40,player[1].lin*40,player[1].skin,screen);
      message=TTF_RenderText_Solid(font,"Player 2 wins!",textColor);
-     player2.money+=player2.hp+player2.mana+player1.money/50;
-     player1.money+=player2.money/75+20;
-     int x1=player1.money,x2=player2.money;
-     if(player1.items_equipped[6]==1)
-        player1.money+=player2.money/75;
-     if(player2.items_equipped[6]==1)
-        player2.money+=x1/75;
-     player2.xp+=100;
-     player1.xp+=20;
+     player[2].money+=player[2].hp+player[2].mana+player[1].money/50;
+     player[1].money+=player[2].money/75+20;
+     int x1=player[1].money,x2=player[2].money;
+     if(player[1].items_equipped[6]==1)
+        player[1].money+=player[2].money/75;
+     if(player[2].items_equipped[6]==1)
+        player[2].money+=x1/75;
+     player[2].xp+=100;
+     player[1].xp+=20;
     }
  else
-    if(player2.hp!=player1.hp)
+    if(player[2].hp!=player[1].hp)
        {
-        player2.skin=SDL_LoadBMP("dead_warrior_on_grass.bmp");
-        apply_surface((player2.col+COL_START)*40,player2.lin*40,player2.skin,screen);
+        player[2].skin=SDL_LoadBMP("dead_warrior_on_grass.bmp");
+        apply_surface((player[2].col+COL_START)*40,player[2].lin*40,player[2].skin,screen);
         message=TTF_RenderText_Solid(font,"Player 1 wins!",textColor);
-        player1.money+=player1.hp+player1.mana+player2.money/50;
-        player2.money+=player1.money/75+20;
-        int x1=player1.money,x2=player2.money;
-        if(player1.items_equipped[6]==1)
-           player1.money+=player2.money/75;
-	   if(player2.items_equipped[6]==1)
-		 player2.money+=x1/75;
-        player1.xp+=100;
-        player2.xp+=20;
+        player[1].money+=player[1].hp+player[1].mana+player[2].money/50;
+        player[2].money+=player[1].money/75+20;
+        int x1=player[1].money,x2=player[2].money;
+        if(player[1].items_equipped[6]==1)
+           player[1].money+=player[2].money/75;
+	   if(player[2].items_equipped[6]==1)
+		 player[2].money+=x1/75;
+        player[1].xp+=100;
+        player[2].xp+=20;
        }
     else
        {
-        player1.skin=SDL_LoadBMP("dead_warrior1_on_grass.bmp");
-        apply_surface((player1.col+COL_START)*40,player1.lin*40,player1.skin,screen);
-        player2.skin=SDL_LoadBMP("dead_warrior_on_grass.bmp");
-        apply_surface((player2.col+COL_START)*40,player2.lin*40,player2.skin,screen);
+        player[1].skin=SDL_LoadBMP("dead_warrior1_on_grass.bmp");
+        apply_surface((player[1].col+COL_START)*40,player[1].lin*40,player[1].skin,screen);
+        player[2].skin=SDL_LoadBMP("dead_warrior_on_grass.bmp");
+        apply_surface((player[2].col+COL_START)*40,player[2].lin*40,player[2].skin,screen);
 	   message=TTF_RenderText_Solid(font,"Round draw!",textColor);
-        int cash=(player2.money+player1.money)/2/25;
-        player1.money+=cash;
-        player2.money+=cash;
-        int x1=player1.money,x2=player2.money;
-        if(player1.items_equipped[6]==1)
-           player1.money+=player2.money/75;
-        if(player2.items_equipped[6]==1)
-           player2.money+=x1/75;
-        player2.xp+=50;
-        player1.xp+=50;
+        int cash=(player[2].money+player[1].money)/2/25;
+        player[1].money+=cash;
+        player[2].money+=cash;
+        int x1=player[1].money,x2=player[2].money;
+        if(player[1].items_equipped[6]==1)
+           player[1].money+=player[2].money/75;
+        if(player[2].items_equipped[6]==1)
+           player[2].money+=x1/75;
+        player[2].xp+=50;
+        player[1].xp+=50;
        }
- player1.save("player1");
- player2.save("player2");
+ player[1].save("player1");
+ player[2].save("player2");
  Mix_CloseAudio();
  Mix_OpenAudio(22050,MIX_DEFAULT_FORMAT,2,4096);
  sound=Mix_LoadWAV("win.wav");
